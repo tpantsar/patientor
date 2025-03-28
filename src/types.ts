@@ -4,12 +4,6 @@ export interface Diagnosis {
   latin?: string;
 }
 
-export enum Gender {
-  Male = 'male',
-  Female = 'female',
-  Other = 'other',
-}
-
 interface SickLeave {
   startDate: string;
   endDate: string;
@@ -20,17 +14,42 @@ interface Discharge {
   criteria: string;
 }
 
-export interface Entry {
+export enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+}
+
+export enum HealthCheckRating {
+  'Healthy' = 0,
+  'LowRisk' = 1,
+  'HighRisk' = 2,
+  'CriticalRisk' = 3,
+}
+
+// Common properties of all patient page entries
+interface BaseEntry {
   id: string;
   description: string;
   date: string;
   specialist: string;
-  type?: string;
-  employerName?: string;
-  healthCheckRating?: number;
-  discharge?: Discharge;
-  sickLeave?: SickLeave;
   diagnosisCodes?: Array<Diagnosis['code']>;
+}
+
+interface HealthCheckEntry extends BaseEntry {
+  type: 'HealthCheck';
+  healthCheckRating: HealthCheckRating;
+}
+
+interface HospitalEntry extends BaseEntry {
+  type: 'Hospital';
+  discharge: Discharge;
+}
+
+interface OccupationalHealthcareEntry extends BaseEntry {
+  type: 'OccupationalHealthcare';
+  employerName: string;
+  sickLeave?: SickLeave;
 }
 
 export interface Patient {
@@ -43,4 +62,12 @@ export interface Patient {
   entries: Entry[];
 }
 
+type Entry = HospitalEntry | OccupationalHealthcareEntry | HealthCheckEntry;
+
 export type PatientFormValues = Omit<Patient, 'id' | 'entries'>;
+
+// Define special omit for unions
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
+
+// Define patient entry without the 'id' property
+export type PatientEntryWithoutId = UnionOmit<Entry, 'id'>;
