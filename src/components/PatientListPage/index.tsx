@@ -1,17 +1,19 @@
-import { useState } from 'react';
 import {
   Box,
-  Table,
   Button,
-  TableHead,
-  Typography,
-  TableCell,
-  TableRow,
+  Link as MuiLink,
+  Table,
   TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
 } from '@mui/material';
 import axios from 'axios';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import { PatientFormValues, Patient } from '../../types';
+import { Patient, PatientFormValues } from '../../types';
 import AddPatientModal from '../AddPatientModal';
 
 import HealthRatingBar from '../HealthRatingBar';
@@ -36,7 +38,7 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
 
   const submitNewPatient = async (values: PatientFormValues) => {
     try {
-      const patient = await patientService.create(values);
+      const patient = await patientService.createPatient(values);
       setPatients(patients.concat(patient));
       setModalOpen(false);
     } catch (e: unknown) {
@@ -74,7 +76,16 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
         <TableBody>
           {Object.values(patients).map((patient: Patient) => (
             <TableRow key={patient.id}>
-              <TableCell>{patient.name}</TableCell>
+              <TableCell>
+                <MuiLink
+                  component={Link}
+                  color="primary"
+                  underline="hover"
+                  to={`/patients/${patient.id}`}
+                >
+                  {patient.name}
+                </MuiLink>
+              </TableCell>
               <TableCell>{patient.gender}</TableCell>
               <TableCell>{patient.occupation}</TableCell>
               <TableCell>
