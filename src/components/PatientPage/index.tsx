@@ -19,7 +19,7 @@ const Entry = ({ entry, diagnoses }: EntryProps) => {
           <ul>
             {entry.diagnosisCodes.map((code) => (
               <li key={code}>
-                {code}: {getDiagnosisDescription(code)}
+                <b>{code}:</b> {getDiagnosisDescription(code)}
               </li>
             ))}
           </ul>
@@ -65,7 +65,7 @@ const Entry = ({ entry, diagnoses }: EntryProps) => {
   }
 
   return (
-    <div>
+    <div className="patient-entry">
       <p>Date: {entry.date}</p>
       <p>{entry.description}</p>
       <h4>Specialist: {entry.specialist}</h4>
@@ -94,11 +94,11 @@ const PatientPage = ({ patient, diagnoses }: PatientPageProps) => {
       <p>Gender: {patient.gender}</p>
       <p>Occupation: {patient.occupation}</p>
       <h3>Entries: {patient.entries.length}</h3>
-      <ul>
+      <div>
         {patient.entries.map((entry) => (
           <Entry key={entry.id} entry={entry} diagnoses={diagnoses} />
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

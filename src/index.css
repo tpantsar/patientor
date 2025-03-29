@@ -35,7 +35,20 @@ p {
 }
 
 h4 {
-  margin: 1em 0;
+  margin: 0.5em 0;
+}
+
+ul {
+  list-style: circle;
+  margin: 0;
+}
+
+.patient-entry {
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+  padding: 0.5em 1em;
+  gap: 1em;
+  margin-bottom: 1em;
 }
 
 @media (prefers-color-scheme: light) {
