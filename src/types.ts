@@ -21,17 +21,17 @@ export enum Gender {
 }
 
 export enum HealthCheckRating {
-  'Healthy' = 0,
-  'LowRisk' = 1,
-  'HighRisk' = 2,
-  'CriticalRisk' = 3,
+  Healthy = 0,
+  LowRisk = 1,
+  HighRisk = 2,
+  CriticalRisk = 3,
 }
 
 // Common properties of all patient page entries
 interface BaseEntry {
   id: string;
-  description: string;
   date: string;
+  description: string;
   specialist: string;
   diagnosisCodes?: Array<Diagnosis['code']>;
 }
@@ -62,7 +62,7 @@ export interface Patient {
   entries: Entry[];
 }
 
-type Entry = HospitalEntry | OccupationalHealthcareEntry | HealthCheckEntry;
+export type Entry = HospitalEntry | OccupationalHealthcareEntry | HealthCheckEntry;
 
 export type PatientFormValues = Omit<Patient, 'id' | 'entries'>;
 
@@ -70,4 +70,4 @@ export type PatientFormValues = Omit<Patient, 'id' | 'entries'>;
 type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
 
 // Define patient entry without the 'id' property
-export type PatientEntryWithoutId = UnionOmit<Entry, 'id'>;
+export type PatientEntryFormValues = UnionOmit<Entry, 'id'>;

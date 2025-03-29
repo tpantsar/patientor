@@ -1,4 +1,9 @@
+import { useState } from 'react';
 import { Diagnosis, Patient } from '../../types';
+import AddPatientEntryModal from '../AddPatientEntryModal';
+import { PatientEntryFormValues } from '../../types';
+import patientService from '../../services/patients';
+import { Button } from '@mui/material';
 
 /**
  * Helper function for exhaustive type checking
@@ -88,9 +93,39 @@ interface PatientPageProps {
 }
 
 const PatientPage = ({ patient, diagnoses }: PatientPageProps) => {
+  const [patient, setPatient] = useState<Patient>();
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [error, setError] = useState<string>();
+
+  const openModal = (): void => setModalOpen(true);
+
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setError(undefined);
+  };
+
   if (patient === null || patient === undefined) {
     return <div>No patient information found</div>;
   }
+
+  const addNewPatientEntry = async (newEntry: PatientEntryFormValues) => {
+    try {
+      const addedEntry = await patientService.createPatientEntry(patient.id, newEntry);
+      const patientWithNewEntry: Patient = {
+        ...patient,
+        entries: patient.entries.concat(addedEntry),
+      };
+      setPatient(patientWithNewEntry);
+    } catch (error) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        setNotificationMsg(error.response?.data.error[0].message);
+        setTimeout(() => {
+          setNotificationMsg(null);
+        }, 5000);
+      }
+    }
+  };
 
   return (
     <div>
@@ -101,6 +136,15 @@ const PatientPage = ({ patient, diagnoses }: PatientPageProps) => {
       <p>Gender: {patient.gender}</p>
       <p>Occupation: {patient.occupation}</p>
       <h3>Entries: {patient.entries.length}</h3>
+      <AddPatientEntryModal
+        modalOpen={modalOpen}
+        onSubmit={submitNewPatient}
+        error={error}
+        onClose={closeModal}
+      />
+      <Button variant="contained" onClick={() => openModal()}>
+        Add New Patient
+      </Button>
       <div>
         {patient.entries.map((entry) => (
           <Entry key={entry.id} entry={entry} diagnoses={diagnoses} />

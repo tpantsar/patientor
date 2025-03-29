@@ -64,6 +64,15 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
           Patient list
         </Typography>
       </Box>
+      <AddPatientModal
+        modalOpen={modalOpen}
+        onSubmit={submitNewPatient}
+        error={error}
+        onClose={closeModal}
+      />
+      <Button variant="contained" onClick={() => openModal()}>
+        Add New Patient
+      </Button>
       <Table style={{ marginBottom: '1em' }}>
         <TableHead>
           <TableRow>
@@ -95,15 +104,6 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
           ))}
         </TableBody>
       </Table>
-      <AddPatientModal
-        modalOpen={modalOpen}
-        onSubmit={submitNewPatient}
-        error={error}
-        onClose={closeModal}
-      />
-      <Button variant="contained" onClick={() => openModal()}>
-        Add New Patient
-      </Button>
     </div>
   );
 };
