@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react';
 import { Link, Route, Routes, useMatch } from 'react-router-dom';
 
 import { apiBaseUrl } from './constants';
-import { Patient } from './types';
+import { Diagnosis, Patient } from './types';
 
 import PatientListPage from './components/PatientListPage';
 import PatientPage from './components/PatientPage';
+import diagnoseService from './services/diagnoses';
 import patientService from './services/patients';
 
 const App = () => {
   // Patients with non-sensitive information
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 
   // Patient with sensitive information
   // This is the patient that is shown when the user clicks on a patient in the list
@@ -26,7 +28,14 @@ const App = () => {
       const patients = await patientService.getAllPatients();
       setPatients(patients);
     };
+    const fetchDiagnoses = async () => {
+      const diagnoses = await diagnoseService.getAllDiagnoses();
+      setDiagnoses(diagnoses);
+      console.log('diagnoses:', diagnoses);
+    };
+
     void fetchPatientList();
+    void fetchDiagnoses();
   }, []);
 
   const patientMatch = useMatch('/patients/:id');
@@ -60,7 +69,10 @@ const App = () => {
             path="/"
             element={<PatientListPage patients={patients} setPatients={setPatients} />}
           />
-          <Route path="/patients/:id" element={<PatientPage patient={patient} />} />
+          <Route
+            path="/patients/:id"
+            element={<PatientPage patient={patient} diagnoses={diagnoses} />}
+          />
         </Routes>
       </Container>
     </div>
