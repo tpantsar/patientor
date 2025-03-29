@@ -88,7 +88,7 @@ interface PatientPageProps {
 }
 
 const PatientPage = ({ patient, diagnoses }: PatientPageProps) => {
-  if (!patient) {
+  if (patient === null || patient === undefined) {
     return <div>No patient information found</div>;
   }
 
