@@ -1,5 +1,12 @@
 import { Diagnosis, Patient } from '../../types';
 
+/**
+ * Helper function for exhaustive type checking
+ */
+const assertNever = (entry: never): never => {
+  throw new Error(`Unhandled discriminated union member: ${JSON.stringify(entry)}`);
+};
+
 interface EntryProps {
   entry: Patient['entries'][number];
   diagnoses: Diagnosis[];
@@ -57,7 +64,7 @@ const Entry = ({ entry, diagnoses }: EntryProps) => {
           </div>
         );
       default:
-        return null;
+        return assertNever(entry);
     }
   };
   if (!entry) {
