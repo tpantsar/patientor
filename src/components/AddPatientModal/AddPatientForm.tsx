@@ -95,7 +95,7 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
         </Select>
 
         <Grid>
-          <Grid item>
+          <Grid component={Grid}>
             <Button
               color="secondary"
               variant="contained"
@@ -106,7 +106,7 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
               Cancel
             </Button>
           </Grid>
-          <Grid item>
+          <Grid component={Grid}>
             <Button
               style={{
                 float: 'right',

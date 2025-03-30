@@ -8,6 +8,10 @@ import {
   SelectChangeEvent,
   TextField,
 } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs, { Dayjs } from 'dayjs';
 
 import { SyntheticEvent, useEffect, useState } from 'react';
 
@@ -19,7 +23,7 @@ import {
   HealthCheckRating,
   PatientEntryFormValues,
 } from '../../types';
-import { assertNever } from '../../utils';
+import { assertNever, formatDateAsString } from '../../utils';
 
 interface Props {
   onSubmit: (values: PatientEntryFormValues) => void;
@@ -45,8 +49,11 @@ const typeOptions: { value: string; label: string }[] = [
 ];
 
 const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
+  const today = dayjs().startOf('day');
+  const after7Days = dayjs().add(7, 'day').startOf('day');
+
   // BaseEntry
-  const [date, setDate] = useState<string>('');
+  const [date, setDate] = useState<Dayjs | null>(today);
   const [description, setDescription] = useState<string>('');
   const [specialist, setSpecialist] = useState<string>('');
   const [diagnosisCodes, setDiagnosisCodes] = useState<Array<Diagnosis['code']>>([]);
@@ -63,13 +70,13 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
   );
 
   // HospitalEntry
-  const [dischargeDate, setDischargeDate] = useState<string>('');
+  const [dischargeDate, setDischargeDate] = useState<Dayjs | null>(today);
   const [dischargeCriteria, setDischargeCriteria] = useState<string>('');
 
   // OccupationalHealthcareEntry
   const [employerName, setEmployerName] = useState<string>('');
-  const [sickLeaveStartDate, setSickLeaveStartDate] = useState<string>('');
-  const [sickLeaveEndDate, setSickLeaveEndDate] = useState<string>('');
+  const [sickLeaveStartDate, setSickLeaveStartDate] = useState<Dayjs | null>(today);
+  const [sickLeaveEndDate, setSickLeaveEndDate] = useState<Dayjs | null>(after7Days);
 
   console.debug('diagnosisCodes:', diagnosisCodes);
   console.debug('selectedDiagnosisCodes:', selectedDiagnosisCodes);
@@ -111,8 +118,11 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
   };
 
   const createPatientEntry = (type: Entry['type']): PatientEntryFormValues => {
+    const sickLeaveStartDateAsString = formatDateAsString(sickLeaveStartDate);
+    const sickLeaveEndDateAsString = formatDateAsString(sickLeaveEndDate);
+
     const baseEntry: BaseEntryWithoutId = {
-      date,
+      date: formatDateAsString(date),
       description,
       specialist,
       diagnosisCodes: selectedDiagnosisCodes,
@@ -126,15 +136,20 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
           ...baseEntry,
           type: 'OccupationalHealthcare',
           employerName,
-          ...(sickLeaveStartDate && sickLeaveEndDate
-            ? { sickLeave: { startDate: sickLeaveStartDate, endDate: sickLeaveEndDate } }
+          ...(sickLeaveStartDateAsString && sickLeaveEndDateAsString
+            ? {
+                sickLeave: {
+                  startDate: sickLeaveStartDateAsString,
+                  endDate: sickLeaveEndDateAsString,
+                },
+              }
             : {}),
         };
       case 'Hospital':
         return {
           ...baseEntry,
           type: 'Hospital',
-          discharge: { date: dischargeDate, criteria: dischargeCriteria },
+          discharge: { date: formatDateAsString(dischargeDate), criteria: dischargeCriteria },
         };
       default:
         return assertNever(type);
@@ -160,15 +175,12 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
           ))}
         </Select>
 
-        <TextField
-          style={{ marginTop: 10 }}
-          label="Date"
-          placeholder="YYYY-MM-DD"
-          fullWidth
-          required
-          value={date}
-          onChange={({ target }) => setDate(target.value)}
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <div style={{ marginTop: 10 }}>
+            <DatePicker label="Date" value={date} onChange={(newDate) => setDate(newDate)} />
+          </div>
+        </LocalizationProvider>
+
         <TextField
           style={{ marginTop: 10 }}
           label="Description"
@@ -177,6 +189,7 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
           value={description}
           onChange={({ target }) => setDescription(target.value)}
         />
+
         <TextField
           style={{ marginTop: 10 }}
           label="Specialist"
@@ -227,15 +240,15 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
         {/* Show discharge if type is Hospital */}
         {type === 'Hospital' && (
           <>
-            <TextField
-              style={{ marginTop: 10 }}
-              label="Discharge Date"
-              placeholder="YYYY-MM-DD"
-              fullWidth
-              required
-              value={dischargeDate}
-              onChange={({ target }) => setDischargeDate(target.value)}
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <div style={{ marginTop: 10 }}>
+                <DatePicker
+                  label="Discharge Date"
+                  value={dischargeDate}
+                  onChange={(newDate) => setDischargeDate(newDate)}
+                />
+              </div>
+            </LocalizationProvider>
             <TextField
               style={{ marginTop: 10 }}
               label="Discharge Criteria"
@@ -258,28 +271,29 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
               value={employerName}
               onChange={({ target }) => setEmployerName(target.value)}
             />
-            {/* Add sick leave fields here if needed */}
-            <TextField
-              style={{ marginTop: 10 }}
-              label="Sick Leave Start Date"
-              placeholder="YYYY-MM-DD"
-              fullWidth
-              value={sickLeaveStartDate}
-              onChange={({ target }) => setSickLeaveStartDate(target.value)}
-            />
-            <TextField
-              style={{ marginTop: 10 }}
-              label="Sick Leave End Date"
-              placeholder="YYYY-MM-DD"
-              fullWidth
-              value={sickLeaveEndDate}
-              onChange={({ target }) => setSickLeaveEndDate(target.value)}
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <div style={{ marginTop: 10 }}>
+                <DatePicker
+                  label="Sick Leave Start Date"
+                  value={sickLeaveStartDate}
+                  onChange={(newDate) => setSickLeaveStartDate(newDate)}
+                />
+              </div>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <div style={{ marginTop: 10 }}>
+                <DatePicker
+                  label="Sick Leave End Date"
+                  value={sickLeaveEndDate}
+                  onChange={(newDate) => setSickLeaveEndDate(newDate)}
+                />
+              </div>
+            </LocalizationProvider>
           </>
         )}
 
         <Grid>
-          <Grid item>
+          <Grid component={Grid}>
             <Button
               color="secondary"
               variant="contained"
@@ -290,7 +304,7 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
               Cancel
             </Button>
           </Grid>
-          <Grid item>
+          <Grid component={Grid}>
             <Button
               style={{
                 float: 'right',
