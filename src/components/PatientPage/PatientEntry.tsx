@@ -1,11 +1,5 @@
 import { Diagnosis, Patient } from '../../types';
-
-/**
- * Helper function for exhaustive type checking
- */
-const assertNever = (entry: never): never => {
-  throw new Error(`Unhandled discriminated union member: ${JSON.stringify(entry)}`);
-};
+import { assertNever } from '../../utils';
 
 interface EntryProps {
   entry: Patient['entries'][number];
@@ -19,10 +13,10 @@ const PatientEntry = ({ entry, diagnoses }: EntryProps) => {
   };
 
   const renderDiagnosisCodes = () => {
-    if (entry.diagnosisCodes) {
+    if (entry.diagnosisCodes && entry.diagnosisCodes.length > 0) {
       return (
         <div>
-          <p>Diagnosis codes:</p>
+          <p>Diagnoses:</p>
           <ul>
             {entry.diagnosisCodes.map((code) => (
               <li key={code}>

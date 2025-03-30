@@ -28,7 +28,7 @@ export enum HealthCheckRating {
 }
 
 // Common properties of all patient page entries
-interface BaseEntry {
+export interface BaseEntry {
   id: string;
   date: string;
   description: string;
@@ -71,3 +71,5 @@ type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit
 
 // Define patient entry without the 'id' property
 export type PatientEntryFormValues = UnionOmit<Entry, 'id'>;
+
+export type BaseEntryWithoutId = Omit<BaseEntry, 'id'>;
