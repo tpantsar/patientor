@@ -14,8 +14,8 @@ import {
 import { Diagnosis, HealthCheckRating, PatientEntryFormValues } from '../../types';
 
 interface Props {
-  onCancel: () => void;
   onSubmit: (values: PatientEntryFormValues) => void;
+  onCancel: () => void;
 }
 
 interface HealthCheckRatingOption {
@@ -30,7 +30,7 @@ const healthCheckRatingOptions: HealthCheckRatingOption[] = Object.values(Health
     label: v.toString(),
   }));
 
-const AddPatientEntryForm = ({ onCancel, onSubmit }: Props) => {
+const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
   const [specialist, setSpecialist] = useState('');
@@ -51,13 +51,22 @@ const AddPatientEntryForm = ({ onCancel, onSubmit }: Props) => {
   const addPatientEntry = (event: SyntheticEvent) => {
     event.preventDefault();
 
-    onSubmit({
+    const newEntry: PatientEntryFormValues = {
       date,
+      type: 'HealthCheck',
       description,
       specialist,
       diagnosisCodes,
       healthCheckRating,
-    });
+    };
+    onSubmit(newEntry);
+
+    // Reset form fields after submission
+    setDate('');
+    setDescription('');
+    setSpecialist('');
+    setHealthCheckRating(HealthCheckRating.Healthy);
+    setDiagnosisCodes([]);
   };
 
   return (

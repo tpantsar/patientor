@@ -16,10 +16,6 @@ const App = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 
-  // Patient with sensitive information
-  // This is the patient that is shown when the user clicks on a patient in the list
-  const [patient, setPatient] = useState<Patient | null>(null);
-
   // Fetch the patient list and ping the server on initial load
   useEffect(() => {
     void axios.get<void>(`${apiBaseUrl}/ping`);
@@ -43,17 +39,6 @@ const App = () => {
     ? patients.find((p) => p.id === patientMatch.params.id)
     : null;
 
-  // Fetch individual patient data when the route changes
-  useEffect(() => {
-    if (individualPatient) {
-      const fetchPatient = async () => {
-        const patient = await patientService.getPatient(individualPatient.id);
-        setPatient(patient);
-      };
-      void fetchPatient();
-    }
-  }, [individualPatient]);
-
   return (
     <div className="App">
       <Container>
@@ -71,7 +56,7 @@ const App = () => {
           />
           <Route
             path="/patients/:id"
-            element={<PatientPage patient={patient} diagnoses={diagnoses} />}
+            element={<PatientPage id={individualPatient?.id} diagnoses={diagnoses} />}
           />
         </Routes>
       </Container>

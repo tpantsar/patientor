@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Diagnosis, Patient } from '../../types';
-import AddPatientEntryModal from '../AddPatientEntryModal';
-import { PatientEntryFormValues } from '../../types';
-import patientService from '../../services/patients';
 import { Button } from '@mui/material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import patientService from '../../services/patients';
+import { Diagnosis, Patient, PatientEntryFormValues } from '../../types';
+import AddPatientEntryModal from '../AddPatientEntryModal';
 
 /**
  * Helper function for exhaustive type checking
@@ -88,12 +88,14 @@ const Entry = ({ entry, diagnoses }: EntryProps) => {
 };
 
 interface PatientPageProps {
-  patient: Patient | null;
+  id: string | undefined;
   diagnoses: Diagnosis[];
 }
 
-const PatientPage = ({ patient, diagnoses }: PatientPageProps) => {
+const PatientPage = ({ id, diagnoses }: PatientPageProps) => {
+  // Patient with sensitive information (SSN, entries, etc.)
   const [patient, setPatient] = useState<Patient>();
+
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
@@ -104,11 +106,24 @@ const PatientPage = ({ patient, diagnoses }: PatientPageProps) => {
     setError(undefined);
   };
 
+  // Fetch individual patient data when the patient ID changes or the component mounts
+  useEffect(() => {
+    if (id) {
+      const fetchPatient = async () => {
+        const patient = await patientService.getPatient(id);
+        setPatient(patient);
+      };
+      void fetchPatient();
+    }
+  }, [id]);
+
   if (patient === null || patient === undefined) {
     return <div>No patient information found</div>;
   }
 
-  const addNewPatientEntry = async (newEntry: PatientEntryFormValues) => {
+  console.log('patient:', patient);
+
+  const submitNewPatientEntry = async (newEntry: PatientEntryFormValues) => {
     try {
       const addedEntry = await patientService.createPatientEntry(patient.id, newEntry);
       const patientWithNewEntry: Patient = {
@@ -116,13 +131,23 @@ const PatientPage = ({ patient, diagnoses }: PatientPageProps) => {
         entries: patient.entries.concat(addedEntry),
       };
       setPatient(patientWithNewEntry);
-    } catch (error) {
-      console.log(error);
-      if (axios.isAxiosError(error)) {
-        setNotificationMsg(error.response?.data.error[0].message);
-        setTimeout(() => {
-          setNotificationMsg(null);
-        }, 5000);
+      setModalOpen(false);
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        if (e?.response?.data && typeof e?.response?.data === 'string') {
+          const message = e.response.data.replace('Something went wrong. Error: ', '');
+          console.error(message);
+          setError(message);
+        } else {
+          const message = e.response?.data.error[0].message;
+          const status = e.response?.status;
+          const errorMsg = `${status}: ${message}`;
+          console.log(errorMsg, e);
+          setError(errorMsg);
+        }
+      } else {
+        console.error('Unknown error', e);
+        setError('Unknown error');
       }
     }
   };
@@ -138,12 +163,12 @@ const PatientPage = ({ patient, diagnoses }: PatientPageProps) => {
       <h3>Entries: {patient.entries.length}</h3>
       <AddPatientEntryModal
         modalOpen={modalOpen}
-        onSubmit={submitNewPatient}
+        onSubmit={submitNewPatientEntry}
         error={error}
         onClose={closeModal}
       />
       <Button variant="contained" onClick={() => openModal()}>
-        Add New Patient
+        Add New Entry
       </Button>
       <div>
         {patient.entries.map((entry) => (
