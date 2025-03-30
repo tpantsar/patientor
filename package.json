@@ -1,5 +1,6 @@
 {
-  "name": "frontend-new",
+  "name": "patientor-client",
+  "description": "Patientor frontend application",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,10 +15,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.14.12",
-    "@mui/material": "^5.14.12",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
+    "@mui/x-date-pickers": "^7.28.2",
     "axios": "^1.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
