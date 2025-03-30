@@ -50,7 +50,9 @@ const typeOptions: { value: string; label: string }[] = [
 
 const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
   const today = dayjs().startOf('day');
-  const after7Days = dayjs().add(7, 'day').startOf('day');
+
+  // Type of the patient entry
+  const [type, setType] = useState<Entry['type']>('HealthCheck');
 
   // BaseEntry
   const [date, setDate] = useState<Dayjs | null>(today);
@@ -60,9 +62,6 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
   const [selectedDiagnosisCodes, setSelectedDiagnosisCodes] = useState<Array<Diagnosis['code']>>(
     [],
   );
-
-  // Type of the patient entry
-  const [type, setType] = useState<Entry['type']>('HealthCheck');
 
   // HealthCheckEntry
   const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(
@@ -75,8 +74,8 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
 
   // OccupationalHealthcareEntry
   const [employerName, setEmployerName] = useState<string>('');
-  const [sickLeaveStartDate, setSickLeaveStartDate] = useState<Dayjs | null>(today);
-  const [sickLeaveEndDate, setSickLeaveEndDate] = useState<Dayjs | null>(after7Days);
+  const [sickLeaveStartDate, setSickLeaveStartDate] = useState<Dayjs | null>();
+  const [sickLeaveEndDate, setSickLeaveEndDate] = useState<Dayjs | null>();
 
   console.debug('diagnosisCodes:', diagnosisCodes);
   console.debug('selectedDiagnosisCodes:', selectedDiagnosisCodes);

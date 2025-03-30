@@ -7,7 +7,7 @@ export const assertNever = (entry: never): never => {
   throw new Error(`Unhandled discriminated union member: ${JSON.stringify(entry)}`);
 };
 
-export const formatDateAsString = (date: Dayjs | null): string => {
+export const formatDateAsString = (date: Dayjs | null | undefined): string => {
   if (!date) {
     return '';
   }
