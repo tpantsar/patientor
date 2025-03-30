@@ -10,15 +10,14 @@ import {
   Typography,
 } from '@mui/material';
 import axios from 'axios';
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import patientService from '../../services/patients';
 import { Patient, PatientFormValues } from '../../types';
 import AddPatientModal from '../AddPatientModal';
-
 import HealthRatingBar from '../HealthRatingBar';
-
-import patientService from '../../services/patients';
 
 interface Props {
   patients: Patient[];

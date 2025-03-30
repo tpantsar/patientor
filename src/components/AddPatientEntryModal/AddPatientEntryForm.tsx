@@ -1,5 +1,3 @@
-import { SyntheticEvent, useEffect, useState } from 'react';
-
 import {
   Button,
   Grid,
@@ -11,8 +9,9 @@ import {
   TextField,
 } from '@mui/material';
 
-import diagnoseService from '../../services/diagnoses';
+import { SyntheticEvent, useEffect, useState } from 'react';
 
+import diagnoseService from '../../services/diagnoses';
 import { Diagnosis, HealthCheckRating, PatientEntryFormValues } from '../../types';
 
 interface Props {

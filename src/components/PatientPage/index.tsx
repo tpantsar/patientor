@@ -1,6 +1,8 @@
 import { Button } from '@mui/material';
 import axios from 'axios';
+
 import { useEffect, useState } from 'react';
+
 import patientService from '../../services/patients';
 import { Diagnosis, Patient, PatientEntryFormValues } from '../../types';
 import AddPatientEntryModal from '../AddPatientEntryModal';

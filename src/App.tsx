@@ -1,15 +1,15 @@
 import { Button, Container, Divider, Typography } from '@mui/material';
 import axios from 'axios';
+
 import { useEffect, useState } from 'react';
 import { Link, Route, Routes, useMatch } from 'react-router-dom';
 
-import { apiBaseUrl } from './constants';
-import { Diagnosis, Patient } from './types';
-
 import PatientListPage from './components/PatientListPage';
 import PatientPage from './components/PatientPage';
+import { apiBaseUrl } from './constants';
 import diagnoseService from './services/diagnoses';
 import patientService from './services/patients';
+import { Diagnosis, Patient } from './types';
 
 const App = () => {
   // Patients with non-sensitive information
