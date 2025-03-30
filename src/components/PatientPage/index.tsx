@@ -125,24 +125,33 @@ const PatientPage = ({ id, diagnoses }: PatientPageProps) => {
 
   const submitNewPatientEntry = async (newEntry: PatientEntryFormValues) => {
     try {
+      console.debug('Submitting new patient entry:', newEntry);
+      console.debug('Patient ID:', patient.id);
       const addedEntry = await patientService.createPatientEntry(patient.id, newEntry);
       const patientWithNewEntry: Patient = {
         ...patient,
         entries: patient.entries.concat(addedEntry),
       };
+      console.debug('Updated patient with new entry:', patientWithNewEntry);
       setPatient(patientWithNewEntry);
       setModalOpen(false);
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        if (e?.response?.data && typeof e?.response?.data === 'string') {
-          const message = e.response.data.replace('Something went wrong. Error: ', '');
+        const errorResponse = e?.response;
+        const errorObj = errorResponse?.data.error[0];
+
+        if (errorResponse?.data && typeof errorResponse?.data === 'string') {
+          const message = errorResponse.data.replace('Something went wrong. Error: ', '');
           console.error(message);
           setError(message);
         } else {
-          const message = e.response?.data.error[0].message;
-          const status = e.response?.status;
-          const errorMsg = `${status}: ${message}`;
-          console.log(errorMsg, e);
+          const message = errorObj.message;
+          const status = errorResponse?.status;
+          const path = errorObj.path;
+
+          console.log('Error path:', path);
+          const errorMsg = path ? `${path}: ${message}` : `Error: ${message}`;
+          console.log(errorMsg, status, e);
           setError(errorMsg);
         }
       } else {

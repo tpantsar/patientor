@@ -44,8 +44,9 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
     [],
   );
 
-  console.log('diagnosisCodes:', diagnosisCodes);
-  console.log('healthCheckRating:', healthCheckRating);
+  console.debug('diagnosisCodes:', diagnosisCodes);
+  console.debug('selectedDiagnosisCodes:', selectedDiagnosisCodes);
+  console.debug('healthCheckRating:', healthCheckRating);
 
   // Fetch the diagnoses list
   useEffect(() => {
@@ -79,22 +80,16 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
   const addPatientEntry = (event: SyntheticEvent) => {
     event.preventDefault();
 
-    const newEntry: PatientEntryFormValues = {
+    const healthCheckEntry: PatientEntryFormValues = {
       date,
-      type: 'HealthCheck',
       description,
       specialist,
       diagnosisCodes: selectedDiagnosisCodes,
+      type: 'HealthCheck',
       healthCheckRating,
     };
-    onSubmit(newEntry);
-
-    // Reset form fields after submission
-    setDate('');
-    setDescription('');
-    setSpecialist('');
-    setHealthCheckRating(HealthCheckRating.Healthy);
-    setDiagnosisCodes([]);
+    console.debug('healthCheckEntry:', healthCheckEntry);
+    onSubmit(healthCheckEntry);
   };
 
   return (
