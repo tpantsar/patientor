@@ -1,4 +1,4 @@
-import { SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
 
 import {
   Button,
@@ -10,6 +10,8 @@ import {
   SelectChangeEvent,
   TextField,
 } from '@mui/material';
+
+import diagnoseService from '../../services/diagnoses';
 
 import { Diagnosis, HealthCheckRating, PatientEntryFormValues } from '../../types';
 
@@ -38,14 +40,40 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
     HealthCheckRating.Healthy,
   );
   const [diagnosisCodes, setDiagnosisCodes] = useState<Array<Diagnosis['code']>>([]);
+  const [selectedDiagnosisCodes, setSelectedDiagnosisCodes] = useState<Array<Diagnosis['code']>>(
+    [],
+  );
 
-  const onHealthCheckRatingChange = (event: SelectChangeEvent<string>) => {
+  console.log('diagnosisCodes:', diagnosisCodes);
+  console.log('healthCheckRating:', healthCheckRating);
+
+  // Fetch the diagnoses list
+  useEffect(() => {
+    const fetchDiagnoses = async () => {
+      const diagnoses = await diagnoseService.getAllDiagnoses();
+      diagnoses.sort((a, b) => a.code.localeCompare(b.code));
+      setDiagnosisCodes(diagnoses.map((d) => d.code));
+    };
+    void fetchDiagnoses();
+  }, []);
+
+  const handleHealthCheckRatingChange = (event: SelectChangeEvent<string>) => {
     event.preventDefault();
 
     const value = Number(event.target.value); // Convert string to number
     if (Object.values(HealthCheckRating).includes(value)) {
       setHealthCheckRating(value as HealthCheckRating);
     }
+  };
+
+  const handleDiagnosisCodeChange = (event: SelectChangeEvent<typeof selectedDiagnosisCodes>) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedDiagnosisCodes(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
   };
 
   const addPatientEntry = (event: SyntheticEvent) => {
@@ -56,7 +84,7 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
       type: 'HealthCheck',
       description,
       specialist,
-      diagnosisCodes,
+      diagnosisCodes: selectedDiagnosisCodes,
       healthCheckRating,
     };
     onSubmit(newEntry);
@@ -95,19 +123,11 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
         <InputLabel style={{ marginTop: 20 }}>Diagnosis Codes</InputLabel>
         <Select
           label="Diagnosis codes"
+          id="diagnosis-codes"
           fullWidth
           multiple
-          value={diagnosisCodes}
-          onChange={({ target }) => {
-            const { value } = target;
-            setDiagnosisCodes(typeof value === 'string' ? value.split(',') : value);
-          }}
-          renderValue={(selected) => {
-            if (selected.length === 0) {
-              return 'Select diagnosis codes';
-            }
-            return selected.join(', ');
-          }}
+          value={selectedDiagnosisCodes}
+          onChange={handleDiagnosisCodeChange}
           input={<OutlinedInput label="Diagnosis codes" />}
         >
           {diagnosisCodes.map((code) => (
@@ -122,7 +142,7 @@ const AddPatientEntryForm = ({ onSubmit, onCancel }: Props) => {
           label="HealthCheckRating"
           fullWidth
           value={healthCheckRating.toString()}
-          onChange={onHealthCheckRatingChange}
+          onChange={handleHealthCheckRatingChange}
         >
           {healthCheckRatingOptions.map((option) => (
             <MenuItem key={option.label} value={option.value}>

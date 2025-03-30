@@ -16,7 +16,7 @@ const App = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 
-  // Fetch the patient list and ping the server on initial load
+  // Fetch the patient and diagnoses list, ping the server on initial load
   useEffect(() => {
     void axios.get<void>(`${apiBaseUrl}/ping`);
 
